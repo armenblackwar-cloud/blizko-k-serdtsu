@@ -359,6 +359,12 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .mobile-slider-controls{display:flex;justify-content:center;gap:12px;margin-top:18px}
   .mobile-slider-btn{width:46px;height:46px;border:1px solid rgba(200,169,96,.36);border-radius:50%;background:rgba(12,11,9,.72);color:var(--gold);font-family:var(--serif);font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center}
 
+  .gal-grid.is-carousel{overflow:visible;scroll-snap-type:none;justify-content:center;min-height:620px;position:relative;perspective:900px}
+  .gal-grid.is-carousel .gal-card{position:absolute;left:50%;top:10px;width:min(78vw,330px);max-width:330px;flex:none;opacity:0;pointer-events:none;transform:translateX(-50%) scale(.82);transition:transform .55s var(--ease-out),opacity .55s var(--ease-out),filter .55s var(--ease-out);filter:brightness(.55) saturate(.72)}
+  .gal-grid.is-carousel .gal-card.is-active{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1);filter:none;z-index:3}
+  .gal-grid.is-carousel .gal-card.is-prev{opacity:.48;transform:translateX(calc(-50% - 46vw)) scale(.82) rotateY(6deg);z-index:2}
+  .gal-grid.is-carousel .gal-card.is-next{opacity:.48;transform:translateX(calc(-50% + 46vw)) scale(.82) rotateY(-6deg);z-index:2}
+
   .pr-grid{display:flex;grid-template-columns:none;gap:14px;padding:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
   .pr-grid::-webkit-scrollbar{display:none}
   .pr-card{flex:0 0 min(84vw,340px);scroll-snap-align:center;padding:24px 18px;min-height:auto}
@@ -897,8 +903,27 @@ if (nav && burger) {
 const gallerySlider = document.querySelector('.gal-grid');
 const galleryPrev = document.querySelector('[data-gallery-prev]');
 const galleryNext = document.querySelector('[data-gallery-next]');
+let galleryIndex = 0;
+const galleryCards = gallerySlider ? [...gallerySlider.querySelectorAll('.gal-card')] : [];
+
+function renderGalleryCarousel() {
+  if (!gallerySlider || !galleryCards.length) return;
+  const mobile = matchMedia('(max-width: 768px)').matches;
+  gallerySlider.classList.toggle('is-carousel', mobile);
+  galleryCards.forEach((card, index) => {
+    card.classList.toggle('is-active', mobile && index === galleryIndex);
+    card.classList.toggle('is-prev', mobile && index === (galleryIndex - 1 + galleryCards.length) % galleryCards.length);
+    card.classList.toggle('is-next', mobile && index === (galleryIndex + 1) % galleryCards.length);
+  });
+}
+
 function slideGallery(direction) {
   if (!gallerySlider) return;
+  if (matchMedia('(max-width: 768px)').matches && galleryCards.length) {
+    galleryIndex = (galleryIndex + direction + galleryCards.length) % galleryCards.length;
+    renderGalleryCarousel();
+    return;
+  }
   const card = gallerySlider.querySelector('.gal-card');
   const step = card ? card.getBoundingClientRect().width + 14 : gallerySlider.clientWidth;
   gallerySlider.scrollBy({ left: direction * step, behavior: 'smooth' });
@@ -907,6 +932,18 @@ if (galleryPrev && galleryNext) {
   galleryPrev.addEventListener('click', () => slideGallery(-1));
   galleryNext.addEventListener('click', () => slideGallery(1));
 }
+if (gallerySlider) {
+  let touchStartX = 0;
+  gallerySlider.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  gallerySlider.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(diff) > 42) slideGallery(diff < 0 ? 1 : -1);
+  }, { passive: true });
+}
+renderGalleryCarousel();
+window.addEventListener('resize', renderGalleryCarousel);
 
 // ═══ SCROLL REVEAL ═══
 const obs = new IntersectionObserver(entries => {
