@@ -319,56 +319,56 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .nav.open .burger span:nth-child(2){opacity:0}
   .nav.open .burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 
-  .hero{min-height:100svh;padding:112px 0 72px}
+  .hero{min-height:92svh;padding:92px 0 46px}
   .hero-content{max-width:100%;padding:0 20px}
-  .hero-label{font-size:9px;letter-spacing:3.2px;margin-bottom:26px;line-height:1.8}
-  .hero-title{font-size:clamp(56px,18vw,78px);line-height:.92;letter-spacing:.2px;margin-bottom:20px}
-  .hero-sub{font-size:22px;margin-bottom:42px}
+  .hero-label{font-size:9px;letter-spacing:3.2px;margin-bottom:18px;line-height:1.6}
+  .hero-title{font-size:clamp(52px,17vw,72px);line-height:.9;letter-spacing:.2px;margin-bottom:14px}
+  .hero-sub{font-size:20px;margin-bottom:30px}
   .hero-cta{width:100%;max-width:320px;justify-content:center;padding:18px 28px;font-size:10px;letter-spacing:2.8px}
   .hero-scroll{display:none}
   .hero-glow{filter:blur(86px);opacity:.07}
 
-  .mq{padding:24px 0}
+  .mq{padding:18px 0}
   .mq-track span{font-size:34px;padding:0 22px}
 
-  .sec{padding:76px 0}
-  .sec-head{margin-bottom:46px}
-  .sec-cross{margin-bottom:30px}
-  .sec-tag{font-size:10px;letter-spacing:3.2px;margin-bottom:18px}
-  .sec-title{font-size:clamp(34px,10vw,44px);line-height:1.05}
+  .sec{padding:56px 0}
+  .sec-head{margin-bottom:32px}
+  .sec-cross{margin-bottom:20px}
+  .sec-tag{font-size:10px;letter-spacing:3.2px;margin-bottom:12px}
+  .sec-title{font-size:clamp(31px,9vw,40px);line-height:1.03}
 
-  .about-grid{gap:30px;padding:16px}
+  .about-grid{gap:22px;padding:14px}
   .about-img{aspect-ratio:3/4;max-height:none}
-  .about-text p{font-size:14px;line-height:1.85}
-  .about-text .sig{font-size:20px;margin-top:28px}
+  .about-text p{font-size:14px;line-height:1.68;margin-bottom:14px}
+  .about-text .sig{font-size:19px;margin-top:20px}
 
-  .adv{padding:42px 24px}
-  .adv-n{font-size:46px;margin-bottom:18px}
+  .adv{padding:30px 22px}
+  .adv-n{font-size:40px;margin-bottom:12px}
 
-  .gal-grid{gap:18px;padding:12px}
+  .gal-grid{gap:14px;padding:10px}
   .gal-img{height:auto;aspect-ratio:4/5}
-  .gal-body{padding:24px 20px}
+  .gal-body{padding:18px 18px}
   .gal-name{font-size:26px}
-  .gal-foot{align-items:flex-start;gap:16px;flex-direction:column}
+  .gal-foot{align-items:flex-start;gap:10px;flex-direction:column}
 
-  .pr-grid{gap:18px;padding:12px}
-  .pr-card{padding:42px 24px;min-height:auto}
-  .pr-card.feat{padding-top:68px}
+  .pr-grid{gap:14px;padding:10px}
+  .pr-card{padding:32px 22px;min-height:auto}
+  .pr-card.feat{padding-top:58px}
   .pr-amt{font-size:42px}
-  .pr-list{margin-bottom:30px}
+  .pr-list{margin-bottom:22px}
   .btn-g,.btn-o{padding:17px 24px}
 
-  .proc{gap:28px}
+  .proc{gap:22px}
   .stp{padding:0 8px}
-  .stp-c{width:72px;height:72px;margin-bottom:22px}
+  .stp-c{width:64px;height:64px;margin-bottom:16px}
 
-  .rev{padding:34px 24px}
+  .rev{padding:26px 20px}
   .rev-q{font-size:58px}
   .rev-txt{font-size:17px;line-height:1.65}
 
-  .fcta{padding:110px 0}
+  .fcta{padding:78px 0}
   .fcta-h{font-size:clamp(40px,12vw,56px)}
-  .fcta-sub{font-size:18px;margin-bottom:40px}
+  .fcta-sub{font-size:18px;margin-bottom:28px}
   .fcta-btns{gap:14px}
 
   .pre-brand{font-size:24px;letter-spacing:4px;text-align:center}
@@ -908,6 +908,7 @@ let atmosphereH = innerHeight;
 let atmosphereDpr = Math.min(devicePixelRatio || 1, 2);
 let atmosphereRunning = false;
 let documentAtmosphereH = innerHeight;
+const isMobileAtmosphere = () => matchMedia('(max-width: 768px)').matches;
 
 if (atmosphere) {
   document.body.prepend(atmosphere);
@@ -951,7 +952,7 @@ function resizeAtmosphere() {
   if (!atmosphereCanvas || !atmosphereCtx) return;
   atmosphereDpr = Math.min(devicePixelRatio || 1, 2);
   atmosphereW = innerWidth;
-  documentAtmosphereH = Math.max(
+  documentAtmosphereH = isMobileAtmosphere() ? innerHeight : Math.max(
     document.body.scrollHeight,
     document.documentElement.scrollHeight,
     innerHeight
@@ -965,7 +966,17 @@ function resizeAtmosphere() {
   atmosphereCanvas.style.left = '0';
   atmosphereCanvas.style.top = '0';
   atmosphereCanvas.style.transform = 'none';
-  if (atmosphere) atmosphere.style.height = atmosphereH + 'px';
+  if (atmosphere) {
+    if (isMobileAtmosphere()) {
+      atmosphere.style.setProperty('position', 'fixed', 'important');
+      atmosphere.style.setProperty('width', '100vw', 'important');
+      atmosphere.style.setProperty('height', '100vh', 'important');
+    } else {
+      atmosphere.style.setProperty('position', 'absolute', 'important');
+      atmosphere.style.setProperty('width', '100%', 'important');
+      atmosphere.style.setProperty('height', atmosphereH + 'px', 'important');
+    }
+  }
   atmosphereCtx.setTransform(atmosphereDpr, 0, 0, atmosphereDpr, 0, 0);
 }
 
@@ -990,7 +1001,7 @@ function resetCanvasPetal(petal, fromTop = true) {
 function initCanvasPetals() {
   resizeAtmosphere();
   canvasPetals.length = 0;
-  const petalCount = innerWidth < 640 ? 30 : 34;
+  const petalCount = innerWidth < 640 ? 60 : 34;
   for (let i = 0; i < petalCount; i++) {
     const petal = {};
     resetCanvasPetal(petal, true);
@@ -1034,6 +1045,9 @@ function drawCanvasAtmosphere() {
 
 initCanvasPetals();
 window.addEventListener('resize', initCanvasPetals);
+window.addEventListener('orientationchange', () => {
+  setTimeout(initCanvasPetals, 250);
+});
 window.addEventListener('load', () => {
   resizeAtmosphere();
 });
