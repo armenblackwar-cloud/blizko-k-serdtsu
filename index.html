@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -300,6 +301,88 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .fcta-btns .btn-g,.fcta-btns .btn-o{width:100%;max-width:340px}
   .foot{flex-direction:column;gap:20px;text-align:center}
   .cursor{display:none!important}
+}
+
+@media(max-width:768px){
+  body{line-height:1.65}
+  .nav{padding:18px 0}
+  .nav.scrolled{padding:12px 0}
+  .nav-logo{font-size:15px;letter-spacing:2.5px;max-width:190px;line-height:1.2}
+  .nav-links{position:fixed;left:16px;right:16px;top:72px;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:14px;border:1px solid rgba(200,169,96,.16);background:rgba(12,11,9,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .35s var(--ease);pointer-events:none}
+  .nav.open .nav-links{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+  .nav-links li{border-bottom:1px solid rgba(200,169,96,.08)}
+  .nav-links li:last-child{border-bottom:none}
+  .nav-links a{display:block;padding:15px 8px;font-size:11px;letter-spacing:2px}
+  .nav-cta{margin-top:8px;text-align:center}
+  .burger{position:relative;z-index:2}
+  .nav.open .burger span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav.open .burger span:nth-child(2){opacity:0}
+  .nav.open .burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+  .hero{min-height:100svh;padding:112px 0 72px}
+  .hero-content{max-width:100%;padding:0 20px}
+  .hero-label{font-size:9px;letter-spacing:3.2px;margin-bottom:26px;line-height:1.8}
+  .hero-title{font-size:clamp(56px,18vw,78px);line-height:.92;letter-spacing:.2px;margin-bottom:20px}
+  .hero-sub{font-size:22px;margin-bottom:42px}
+  .hero-cta{width:100%;max-width:320px;justify-content:center;padding:18px 28px;font-size:10px;letter-spacing:2.8px}
+  .hero-scroll{display:none}
+  .hero-glow{filter:blur(86px);opacity:.07}
+
+  .mq{padding:24px 0}
+  .mq-track span{font-size:34px;padding:0 22px}
+
+  .sec{padding:76px 0}
+  .sec-head{margin-bottom:46px}
+  .sec-cross{margin-bottom:30px}
+  .sec-tag{font-size:10px;letter-spacing:3.2px;margin-bottom:18px}
+  .sec-title{font-size:clamp(34px,10vw,44px);line-height:1.05}
+
+  .about-grid{gap:30px;padding:16px}
+  .about-img{aspect-ratio:3/4;max-height:none}
+  .about-text p{font-size:14px;line-height:1.85}
+  .about-text .sig{font-size:20px;margin-top:28px}
+
+  .adv{padding:42px 24px}
+  .adv-n{font-size:46px;margin-bottom:18px}
+
+  .gal-grid{gap:18px;padding:12px}
+  .gal-img{height:auto;aspect-ratio:4/5}
+  .gal-body{padding:24px 20px}
+  .gal-name{font-size:26px}
+  .gal-foot{align-items:flex-start;gap:16px;flex-direction:column}
+
+  .pr-grid{gap:18px;padding:12px}
+  .pr-card{padding:42px 24px;min-height:auto}
+  .pr-card.feat{padding-top:68px}
+  .pr-amt{font-size:42px}
+  .pr-list{margin-bottom:30px}
+  .btn-g,.btn-o{padding:17px 24px}
+
+  .proc{gap:28px}
+  .stp{padding:0 8px}
+  .stp-c{width:72px;height:72px;margin-bottom:22px}
+
+  .rev{padding:34px 24px}
+  .rev-q{font-size:58px}
+  .rev-txt{font-size:17px;line-height:1.65}
+
+  .fcta{padding:110px 0}
+  .fcta-h{font-size:clamp(40px,12vw,56px)}
+  .fcta-sub{font-size:18px;margin-bottom:40px}
+  .fcta-btns{gap:14px}
+
+  .pre-brand{font-size:24px;letter-spacing:4px;text-align:center}
+  .pre-flower{width:96px;height:96px}
+}
+
+@media(max-width:420px){
+  .con{padding:0 16px}.nav-in{padding:0 16px}
+  .hero-title{font-size:clamp(48px,17vw,64px)}
+  .hero-label{letter-spacing:2.4px}
+  .sec-title{font-size:clamp(30px,9.5vw,38px)}
+  .about-grid,.gal-grid,.pr-grid,.rev-grid{padding:10px}
+  .gal-body,.pr-card,.rev{padding-left:18px;padding-right:18px}
+  .fcta-btns .btn-g,.fcta-btns .btn-o{max-width:none}
 }
 </style>
 </head>
@@ -770,6 +853,20 @@ window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', scrollY > 80);
 });
 
+const nav = document.getElementById('nav');
+const burger = document.getElementById('burger');
+if (nav && burger) {
+  burger.addEventListener('click', () => {
+    nav.classList.toggle('open');
+  });
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => nav.classList.remove('open'));
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') nav.classList.remove('open');
+  });
+}
+
 // ═══ SCROLL REVEAL ═══
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('v'); });
@@ -885,7 +982,8 @@ function resetCanvasPetal(petal, fromTop = true) {
 function initCanvasPetals() {
   resizeAtmosphere();
   canvasPetals.length = 0;
-  for (let i = 0; i < 34; i++) {
+  const petalCount = innerWidth < 640 ? 18 : 34;
+  for (let i = 0; i < petalCount; i++) {
     const petal = {};
     resetCanvasPetal(petal, true);
     canvasPetals.push(petal);
