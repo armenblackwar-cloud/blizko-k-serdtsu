@@ -72,7 +72,7 @@ a{color:inherit;text-decoration:none}
 @keyframes petalDrift{0%{opacity:0;transform:translateY(0) rotate(0)}20%{opacity:.6}80%{opacity:.6}100%{opacity:0;transform:translateY(-200px) rotate(180deg) translateX(40px)}}
 
 /* ═══ NAV ═══ */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:28px 0;transition:all .6s var(--ease)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:20000;padding:28px 0;transition:all .6s var(--ease)}
 .nav.scrolled{padding:14px 0;background:rgba(12,11,9,.92);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid rgba(200,169,96,.06)}
 .nav-in{max-width:1400px;margin:0 auto;padding:0 48px;display:flex;align-items:center;justify-content:space-between}
 .nav-logo{font-family:var(--serif);font-size:18px;font-weight:400;letter-spacing:4px;text-transform:uppercase;color:var(--cream);transition:all .4s}
@@ -85,7 +85,7 @@ a{color:inherit;text-decoration:none}
 .nav-cta{font-size:10px!important;font-weight:500!important;letter-spacing:3px!important;padding:12px 32px;border:1px solid var(--gold);color:var(--gold)!important;transition:all .4s var(--ease)!important}
 .nav-cta:hover{background:var(--gold)!important;color:var(--bg)!important;box-shadow:0 0 30px rgba(200,169,96,.2)}
 .nav-cta::after{display:none!important}
-.burger{display:none;cursor:pointer;flex-direction:column;gap:6px;background:none;border:none;padding:4px}
+.burger{display:none;cursor:pointer;flex-direction:column;gap:6px;background:none;border:none;padding:10px;margin:-10px;touch-action:manipulation}
 .burger span{width:24px;height:1px;background:var(--cream);display:block;transition:all .3s}
 
 /* ═══ HERO ═══ */
@@ -308,7 +308,7 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .nav{padding:18px 0}
   .nav.scrolled{padding:12px 0}
   .nav-logo{font-size:15px;letter-spacing:2.5px;max-width:190px;line-height:1.2}
-  .nav-links{position:fixed;left:16px;right:16px;top:72px;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:14px;border:1px solid rgba(200,169,96,.16);background:rgba(12,11,9,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .35s var(--ease);pointer-events:none}
+  .nav-links{position:fixed;left:16px;right:16px;top:72px;z-index:20001;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:14px;border:1px solid rgba(200,169,96,.16);background:rgba(12,11,9,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .35s var(--ease);pointer-events:none}
   .nav.open .nav-links{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
   .nav-links li{border-bottom:1px solid rgba(200,169,96,.08)}
   .nav-links li:last-child{border-bottom:none}
@@ -450,7 +450,7 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
       <li><a href="#rev">Отзывы</a></li>
       <li><a href="#order" class="nav-cta">Заказать</a></li>
     </ul>
-    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+    <button class="burger" id="burger" type="button" aria-label="Открыть меню" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
@@ -856,14 +856,22 @@ window.addEventListener('scroll', () => {
 const nav = document.getElementById('nav');
 const burger = document.getElementById('burger');
 if (nav && burger) {
-  burger.addEventListener('click', () => {
+  burger.addEventListener('click', (e) => {
+    e.preventDefault();
     nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', nav.classList.contains('open') ? 'true' : 'false');
   });
   document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => nav.classList.remove('open'));
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') nav.classList.remove('open');
+    if (e.key === 'Escape') {
+      nav.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    }
   });
 }
 
@@ -967,10 +975,10 @@ function resetCanvasPetal(petal, fromTop = true) {
   const startBand = Math.max(innerHeight, atmosphereH * 0.28);
   petal.y = fromTop ? -40 - Math.random() * startBand : Math.random() * atmosphereH;
   petal.vx = -0.18 + Math.random() * 0.36;
-  petal.vy = (0.34 + Math.random() * 0.68) * 1.15;
+  petal.vy = (0.34 + Math.random() * 0.68) * (innerWidth < 640 ? 1.65 : 1.15);
   petal.depth = 0.18 + Math.random() * 0.78;
   petal.size = 9 + Math.random() * 20;
-  petal.alpha = 0.16 + Math.random() * 0.28;
+  petal.alpha = (innerWidth < 640 ? 0.24 : 0.16) + Math.random() * (innerWidth < 640 ? 0.34 : 0.28);
   petal.rot = Math.random() * Math.PI * 2;
   petal.spin = -0.012 + Math.random() * 0.024;
   petal.wave = 8 + Math.random() * 34;
@@ -982,7 +990,7 @@ function resetCanvasPetal(petal, fromTop = true) {
 function initCanvasPetals() {
   resizeAtmosphere();
   canvasPetals.length = 0;
-  const petalCount = innerWidth < 640 ? 18 : 34;
+  const petalCount = innerWidth < 640 ? 30 : 34;
   for (let i = 0; i < petalCount; i++) {
     const petal = {};
     resetCanvasPetal(petal, true);
