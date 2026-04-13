@@ -131,6 +131,8 @@ a{color:inherit;text-decoration:none}
 /* ═══ SECTION ═══ */
 .sec{padding:132px 0;position:relative;overflow:hidden;border-top:1px solid rgba(200,169,96,.08);border-bottom:1px solid rgba(255,255,255,.025)}
 .sec::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.018),transparent 18%,transparent 82%,rgba(0,0,0,.18));pointer-events:none}
+.sec::after{content:'';position:absolute;inset:-18%;z-index:1;pointer-events:none;background:radial-gradient(520px 260px at var(--wave-x,50%) var(--wave-y,50%),rgba(200,169,96,.07),rgba(120,94,42,.035) 28%,transparent 62%),linear-gradient(var(--wave-angle,115deg),transparent 18%,rgba(255,255,255,.026) 42%,rgba(200,169,96,.035) 50%,rgba(255,255,255,.018) 58%,transparent 82%);opacity:.55;mix-blend-mode:screen;filter:blur(.2px);transform:translate3d(var(--wave-tx,0),var(--wave-ty,0),0);transition:opacity .45s var(--ease);will-change:transform,background}
+.sec:hover::after{opacity:.82}
 .sec-alt{background:linear-gradient(180deg,var(--bg2),#0d0b09)}
 .con{max-width:1200px;margin:0 auto;padding:0 48px;position:relative;z-index:3}
 .sec-head{text-align:center;margin-bottom:72px}
@@ -256,6 +258,7 @@ a{color:inherit;text-decoration:none}
 
 /* ═══ FINAL CTA ═══ */
 .fcta{padding:200px 0;text-align:center;position:relative;z-index:2;overflow:hidden}
+.fcta::after{content:'';position:absolute;inset:-18%;z-index:1;pointer-events:none;background:radial-gradient(560px 280px at var(--wave-x,50%) var(--wave-y,50%),rgba(200,169,96,.065),rgba(90,68,32,.035) 32%,transparent 66%),linear-gradient(var(--wave-angle,115deg),transparent 18%,rgba(255,255,255,.022) 45%,rgba(200,169,96,.032) 52%,transparent 82%);opacity:.52;mix-blend-mode:screen;transform:translate3d(var(--wave-tx,0),var(--wave-ty,0),0);will-change:transform,background}
 .fcta-bg{position:absolute;inset:0}
 .fcta-glow{position:absolute;width:500px;height:500px;border-radius:50%;filter:blur(150px);opacity:.05}
 .fcta-glow-1{background:var(--gold);top:20%;left:30%;animation:glowPulse 10s ease infinite alternate}
@@ -372,6 +375,7 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
 @media(max-width:768px){
   html{scroll-padding-top:66px}
   body{line-height:1.55}
+  .sec::after,.fcta::after{display:none}
   .nav{padding:14px 0}
   .nav.scrolled{padding:10px 0}
   .nav-logo{font-size:15px;letter-spacing:2.5px;max-width:190px;line-height:1.2}
@@ -1190,6 +1194,7 @@ let pmx = 0.5, pmy = 0.45, windX = 0, windY = 0;
 let bgx = 0, bgy = 0, targetBgx = 0, targetBgy = 0;
 const heroBg = document.querySelector('.hero-bg');
 const glows = [...document.querySelectorAll('.hero-glow')];
+const lightWaveSections = [...document.querySelectorAll('.sec,.fcta')];
 const atmosphere = document.getElementById('atmosphere');
 const atmosphereCanvas = document.getElementById('atmosphereCanvas');
 const atmosphereCtx = atmosphereCanvas ? atmosphereCanvas.getContext('2d') : null;
@@ -1387,6 +1392,22 @@ document.addEventListener('mousemove', e => {
     const y = (smy - 0.5) * depth;
     g.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${1 + (smx - 0.5) * 0.025})`;
   });
+
+  if (innerWidth > 768) {
+    lightWaveSections.forEach((section, i) => {
+      const rect = section.getBoundingClientRect();
+      if (rect.bottom < -120 || rect.top > innerHeight + 120) return;
+      const localX = ((tx - rect.left) / Math.max(rect.width, 1)) * 100;
+      const localY = ((ty - rect.top) / Math.max(rect.height, 1)) * 100;
+      const driftX = (smx - 0.5) * (18 + i * 1.5);
+      const driftY = (smy - 0.5) * (12 + i);
+      section.style.setProperty('--wave-x', `${Math.max(-18, Math.min(118, localX)).toFixed(2)}%`);
+      section.style.setProperty('--wave-y', `${Math.max(-18, Math.min(118, localY)).toFixed(2)}%`);
+      section.style.setProperty('--wave-tx', `${driftX.toFixed(2)}px`);
+      section.style.setProperty('--wave-ty', `${driftY.toFixed(2)}px`);
+      section.style.setProperty('--wave-angle', `${(112 + (smx - 0.5) * 18).toFixed(2)}deg`);
+    });
+  }
 
   drawCanvasAtmosphere();
 
