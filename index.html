@@ -374,14 +374,25 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .gal-grid.is-carousel .gal-card.is-prev{opacity:.48;transform:translateX(calc(-50% - 46vw)) scale(.82) rotateY(6deg);z-index:2}
   .gal-grid.is-carousel .gal-card.is-next{opacity:.48;transform:translateX(calc(-50% + 46vw)) scale(.82) rotateY(-6deg);z-index:2}
 
-  .pr-card{padding:22px 18px;min-height:auto}
-  .pr-card.feat{padding-top:48px}
+  .mobile-3d-carousel{overflow:visible;scroll-snap-type:none;justify-content:center;position:relative;perspective:980px;transform-style:preserve-3d}
+  .mobile-3d-carousel>*{position:absolute;left:50%;top:0;width:min(78vw,322px);max-width:322px;flex:none;opacity:0;pointer-events:none;transform:translateX(-50%) scale(.8) rotateY(0deg);transition:transform .58s var(--ease-out),opacity .58s var(--ease-out),filter .58s var(--ease-out);filter:brightness(.5) saturate(.72)}
+  .mobile-3d-carousel>.is-active{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1) rotateY(0deg);filter:none;z-index:3}
+  .mobile-3d-carousel>.is-prev{opacity:.46;transform:translateX(calc(-50% - 45vw)) scale(.8) rotateY(7deg);z-index:2}
+  .mobile-3d-carousel>.is-next{opacity:.46;transform:translateX(calc(-50% + 45vw)) scale(.8) rotateY(-7deg);z-index:2}
+  .mobile-3d-carousel>.is-far{opacity:0;transform:translateX(-50%) scale(.72)}
+  .carousel-adv{min-height:308px}
+  .carousel-price{min-height:604px}
+  .carousel-proc{min-height:310px}
+  .carousel-rev{min-height:390px}
+
+  .pr-card{padding:20px 18px;min-height:auto}
+  .pr-card.feat{padding-top:42px}
   .pr-card.feat::after{top:14px;padding:6px 20px;font-size:8px}
   .pr-tier{font-size:10px;letter-spacing:3px;margin-bottom:16px}
-  .pr-amt{font-size:34px}
-  .pr-note{margin-bottom:22px}
-  .pr-list{margin-bottom:18px}
-  .pr-list li{font-size:12px;line-height:1.45;padding:8px 0;gap:10px}
+  .pr-amt{font-size:31px}
+  .pr-note{margin-bottom:16px;font-size:12px}
+  .pr-list{margin-bottom:16px}
+  .pr-list li{font-size:11px;line-height:1.38;padding:6px 0;gap:9px}
   .btn-g,.btn-o{padding:14px 20px;font-size:10px;letter-spacing:2.4px}
 
   .proc{gap:14px}
@@ -391,7 +402,7 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .stp-t{font-size:17px;margin-bottom:8px}
   .stp-d{font-size:12px;line-height:1.55}
 
-  .rev{padding:24px 20px;min-height:290px}
+  .rev{padding:24px 20px;min-height:290px;border:1px solid rgba(200,169,96,.14)!important;background:linear-gradient(180deg,rgba(18,16,13,.86),rgba(8,8,7,.78))}
   .rev-q{font-size:48px}
   .rev-txt{font-size:15px;line-height:1.6}
 
@@ -414,6 +425,7 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .about-grid,.adv-grid,.gal-grid,.pr-grid,.proc,.rev-grid{padding:0;border:0;background:transparent}
   .adv,.gal-card,.pr-card,.stp,.rev{flex-basis:calc(100vw - 44px)}
   .gal-grid.is-carousel .gal-card{width:calc(100vw - 54px)}
+  .mobile-3d-carousel>*{width:calc(100vw - 54px)}
   .gal-body,.pr-card,.rev{padding-left:18px;padding-right:18px}
   .fcta-btns .btn-g,.fcta-btns .btn-o{max-width:none}
 }
@@ -941,6 +953,8 @@ function slideGallery(direction) {
   gallerySlider.scrollBy({ left: direction * step, behavior: 'smooth' });
 }
 if (galleryPrev && galleryNext) {
+  galleryPrev.textContent = '‹';
+  galleryNext.textContent = '›';
   galleryPrev.addEventListener('click', () => slideGallery(-1));
   galleryNext.addEventListener('click', () => slideGallery(1));
 }
@@ -986,6 +1000,66 @@ window.addEventListener('resize', renderGalleryCarousel);
     const step = firstCard ? firstCard.getBoundingClientRect().width + gap : slider.clientWidth * .86;
     slider.scrollBy({ left: Number(btn.dataset.dir) * step, behavior: 'smooth' });
   });
+});
+
+// Upgrade mobile sliders into 3D focus carousels.
+[
+  ['.adv-grid', 'adv'],
+  ['.pr-grid', 'price'],
+  ['.proc', 'proc'],
+  ['.rev-grid', 'rev']
+].forEach(([selector, name]) => {
+  const slider = document.querySelector(selector);
+  if (!slider || slider.dataset.mobile3d === 'ready') return;
+  const cards = [...slider.children];
+  const controls = slider.nextElementSibling && slider.nextElementSibling.classList.contains('mobile-slider-controls')
+    ? slider.nextElementSibling
+    : null;
+  let index = 0;
+  let touchStartX = 0;
+  slider.dataset.mobile3d = 'ready';
+
+  function render3d() {
+    const mobile = matchMedia('(max-width: 768px)').matches;
+    const prevIndex = (index - 1 + cards.length) % cards.length;
+    const nextIndex = (index + 1) % cards.length;
+    slider.classList.toggle('mobile-3d-carousel', mobile);
+    slider.classList.toggle(`carousel-${name}`, mobile);
+    cards.forEach((card, cardIndex) => {
+      card.classList.toggle('is-active', mobile && cardIndex === index);
+      card.classList.toggle('is-prev', mobile && cardIndex === prevIndex);
+      card.classList.toggle('is-next', mobile && cardIndex === nextIndex);
+      card.classList.toggle('is-far', mobile && cardIndex !== index && cardIndex !== prevIndex && cardIndex !== nextIndex);
+    });
+  }
+
+  function slide3d(direction) {
+    if (!matchMedia('(max-width: 768px)').matches) return;
+    index = (index + direction + cards.length) % cards.length;
+    render3d();
+  }
+
+  if (controls) {
+    const buttons = controls.querySelectorAll('.mobile-slider-btn');
+    if (buttons[0]) buttons[0].textContent = '‹';
+    if (buttons[1]) buttons[1].textContent = '›';
+    controls.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-dir]');
+      if (!btn || !matchMedia('(max-width: 768px)').matches) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      slide3d(Number(btn.dataset.dir));
+    }, true);
+  }
+  slider.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  slider.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(diff) > 42) slide3d(diff < 0 ? 1 : -1);
+  }, { passive: true });
+  render3d();
+  window.addEventListener('resize', render3d);
 });
 
 // ═══ SCROLL REVEAL ═══
