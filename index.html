@@ -1008,7 +1008,7 @@ function resetCanvasPetal(petal, fromTop = true) {
 function initCanvasPetals() {
   resizeAtmosphere();
   canvasPetals.length = 0;
-  const petalCount = innerWidth < 640 ? 19 : 34;
+  const petalCount = innerWidth < 640 ? 10 : 34;
   for (let i = 0; i < petalCount; i++) {
     const petal = {};
     resetCanvasPetal(petal, true);
@@ -1020,6 +1020,7 @@ function drawCanvasAtmosphere() {
   if (!atmosphereCtx) return;
   atmosphereCtx.clearRect(0, 0, atmosphereW, atmosphereH);
   if (!atmosphereRunning) return;
+  if (isMobileAtmosphere() && scrollY > innerHeight * 0.88) return;
   atmosphereCtx.textAlign = 'center';
   atmosphereCtx.textBaseline = 'middle';
 
