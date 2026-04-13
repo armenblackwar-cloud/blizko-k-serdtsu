@@ -343,9 +343,9 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .sec-title{font-size:clamp(31px,9vw,40px);line-height:1.03}
 
   .about-grid{gap:18px;padding:0;border:0;background:transparent}
-  .about-img{aspect-ratio:3/4;max-height:none}
-  .about-text p{font-size:14px;line-height:1.68;margin-bottom:14px}
-  .about-text .sig{font-size:19px;margin-top:20px}
+  .about-img{aspect-ratio:4/3;max-height:46svh}
+  .about-text p{font-size:13px;line-height:1.56;margin-bottom:12px}
+  .about-text .sig{font-size:18px;margin-top:16px}
 
   .adv-grid,.pr-grid,.proc,.rev-grid{display:flex;grid-template-columns:none;gap:14px;padding:0;border:0;background:transparent;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
   .adv-grid::-webkit-scrollbar,.pr-grid::-webkit-scrollbar,.proc::-webkit-scrollbar,.rev-grid::-webkit-scrollbar{display:none}
@@ -365,10 +365,10 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .gal-desc{font-size:12px;line-height:1.55;margin-bottom:16px}
   .gal-price{font-size:24px}
   .gal-foot{align-items:flex-start;gap:10px;flex-direction:column}
-  .mobile-slider-controls{display:flex;justify-content:center;gap:12px;margin-top:18px}
+  .mobile-slider-controls{display:flex;justify-content:center;gap:12px;margin-top:10px}
   .mobile-slider-btn{width:46px;height:46px;border:1px solid rgba(200,169,96,.36);border-radius:50%;background:rgba(12,11,9,.72);color:var(--gold);font-family:var(--serif);font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center}
 
-  .gal-grid.is-carousel{overflow:visible;scroll-snap-type:none;justify-content:center;min-height:582px;position:relative;perspective:900px}
+  .gal-grid.is-carousel{overflow:visible;scroll-snap-type:none;justify-content:center;min-height:var(--carousel-height,582px);position:relative;perspective:900px}
   .gal-grid.is-carousel .gal-card{position:absolute;left:50%;top:6px;width:min(78vw,322px);max-width:322px;flex:none;opacity:0;pointer-events:none;transform:translateX(-50%) scale(.82);transition:transform .55s var(--ease-out),opacity .55s var(--ease-out),filter .55s var(--ease-out);filter:brightness(.55) saturate(.72)}
   .gal-grid.is-carousel .gal-card.is-active{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1);filter:none;z-index:3}
   .gal-grid.is-carousel .gal-card.is-prev{opacity:.48;transform:translateX(calc(-50% - 46vw)) scale(.82) rotateY(6deg);z-index:2}
@@ -380,10 +380,7 @@ footer{padding:48px 0;border-top:1px solid rgba(200,169,96,.05);position:relativ
   .mobile-3d-carousel>.is-prev{opacity:.46;transform:translateX(calc(-50% - 45vw)) scale(.8) rotateY(7deg);z-index:2}
   .mobile-3d-carousel>.is-next{opacity:.46;transform:translateX(calc(-50% + 45vw)) scale(.8) rotateY(-7deg);z-index:2}
   .mobile-3d-carousel>.is-far{opacity:0;transform:translateX(-50%) scale(.72)}
-  .carousel-adv{min-height:308px}
-  .carousel-price{min-height:604px}
-  .carousel-proc{min-height:310px}
-  .carousel-rev{min-height:390px}
+  .carousel-adv,.carousel-price,.carousel-proc,.carousel-rev{min-height:var(--carousel-height,320px)}
 
   .pr-card{padding:20px 18px;min-height:auto}
   .pr-card.feat{padding-top:42px}
@@ -939,6 +936,14 @@ function renderGalleryCarousel() {
     card.classList.toggle('is-prev', mobile && index === (galleryIndex - 1 + galleryCards.length) % galleryCards.length);
     card.classList.toggle('is-next', mobile && index === (galleryIndex + 1) % galleryCards.length);
   });
+  if (mobile) {
+    requestAnimationFrame(() => {
+      const active = galleryCards[galleryIndex];
+      if (active) gallerySlider.style.setProperty('--carousel-height', `${Math.ceil(active.offsetHeight) + 4}px`);
+    });
+  } else {
+    gallerySlider.style.removeProperty('--carousel-height');
+  }
 }
 
 function slideGallery(direction) {
@@ -1031,6 +1036,14 @@ window.addEventListener('resize', renderGalleryCarousel);
       card.classList.toggle('is-next', mobile && cardIndex === nextIndex);
       card.classList.toggle('is-far', mobile && cardIndex !== index && cardIndex !== prevIndex && cardIndex !== nextIndex);
     });
+    if (mobile) {
+      requestAnimationFrame(() => {
+        const active = cards[index];
+        if (active) slider.style.setProperty('--carousel-height', `${Math.ceil(active.offsetHeight) + 4}px`);
+      });
+    } else {
+      slider.style.removeProperty('--carousel-height');
+    }
   }
 
   function slide3d(direction) {
